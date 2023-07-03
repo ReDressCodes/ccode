@@ -1,11 +1,15 @@
-#include <cstdio>
+#include <stdio.h>
 #include <windows.h>
 #include <gdiplus.h>
-#include <tlhelp32.h>
 
 using namespace Gdiplus;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void check_fallback(FontFamily *family) {
+  if (family)
+    printf("fallback font \n");
+  else
+    printf("no fallback font \n");
+}
 
 int main(int argc, char *argv[]) {
   HWND hwnd;
@@ -15,9 +19,9 @@ int main(int argc, char *argv[]) {
   WNDCLASSA properties;
   memset(&properties, 0, sizeof(properties));
   properties.lpszClassName = "AddString";
-  properties.lpfnWndProc = WindowProc;
+  properties.lpfnWndProc = DefWindowProc;
   properties.hInstance = GetModuleHandleA(0);
-  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
+  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(255, 255, 255));
   RegisterClassA(&properties);
 
   hwnd = CreateWindowA("AddString", "AddString test",
@@ -33,38 +37,32 @@ int main(int argc, char *argv[]) {
 
   HDC hdc = GetDC(hwnd);
 
-  Graphics graphics(hdc);
-  FontFamily fontFamily(L"Times New Roman");
-  GraphicsPath pathstring, pathrect;
-  StringFormat format = {};
-  Status status = pathstring.AddString(
-      L"Hello, World",
-      -1, &fontFamily, 0, 160, Rect(100, 100, 100, 100), NULL);
-  Pen pen(Color(255, 255, 255, 0));
-  graphics.DrawPath(&pen, &pathstring);
+   Graphics graphics(hdc);
 
+   Pen bluePen(Color(255, 0, 0, 255));
+   Pen greenPen(Color(255, 0, 255,  0), 10.0f);
+
+   PointF points[] = {
+      PointF(20.0f, 20.0f),
+      PointF(160.0f, 100.0f),
+      PointF(140.0f, 60.0f),
+      PointF(60.0f, 100.0f)};
+
+   GraphicsPath path;
+   path.AddClosedCurve(points, 4);
+
+ ///  path.Widen(&greenPen);
+   graphics.DrawPath(&bluePen, &path);
+
+   path.Outline();
+
+//   graphics.TranslateTransform(180.0f, 20.0f);
+   graphics.DrawPath(&bluePen, &path);
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
     TranslateMessage(&Msg);
     DispatchMessage(&Msg);
   }
 
-  Sleep(100000);
-
   return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                            LPARAM lParam) {
-  switch (uMsg) {
-  case WM_PAINT: {
-    printf("WM_PAINT\n");
-    break;
-  }
-  default:
-    printf("Other message\n");
-    break;
-  }
-
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

@@ -1,11 +1,8 @@
-#include <cstdio>
+#include <stdio.h>
 #include <windows.h>
 #include <gdiplus.h>
-#include <tlhelp32.h>
 
 using namespace Gdiplus;
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int main(int argc, char *argv[]) {
   HWND hwnd;
@@ -15,9 +12,9 @@ int main(int argc, char *argv[]) {
   WNDCLASSA properties;
   memset(&properties, 0, sizeof(properties));
   properties.lpszClassName = "AddString";
-  properties.lpfnWndProc = WindowProc;
+  properties.lpfnWndProc = DefWindowProc;
   properties.hInstance = GetModuleHandleA(0);
-  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
+  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(255, 255, 255));
   RegisterClassA(&properties);
 
   hwnd = CreateWindowA("AddString", "AddString test",
@@ -34,14 +31,24 @@ int main(int argc, char *argv[]) {
   HDC hdc = GetDC(hwnd);
 
   Graphics graphics(hdc);
-  FontFamily fontFamily(L"Times New Roman");
-  GraphicsPath pathstring, pathrect;
-  StringFormat format = {};
-  Status status = pathstring.AddString(
-      L"Hello, World",
-      -1, &fontFamily, 0, 160, Rect(100, 100, 100, 100), NULL);
-  Pen pen(Color(255, 255, 255, 0));
-  graphics.DrawPath(&pen, &pathstring);
+  StringFormat format;
+  format.SetFormatFlags(StringFormatFlagsNoClip);
+  format.SetAlignment(StringAlignmentNear);
+  RectF layoutRect(0.0f, 0.0f, 0.0f, 0.f);
+  SolidBrush blackBrush(Color(255, 0, 0, 0));
+
+  Font font(L"Times New Roman", 48);
+
+  graphics.DrawString(
+                  L"Hello, World!",
+                  -1,
+                  &font,
+                  layoutRect,
+                  &format,
+                  &blackBrush);
+
+  Pen mypen(Color::Black, 3);
+  graphics.DrawRectangle(&mypen, layoutRect);
 
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
@@ -49,22 +56,5 @@ int main(int argc, char *argv[]) {
     DispatchMessage(&Msg);
   }
 
-  Sleep(100000);
-
   return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                            LPARAM lParam) {
-  switch (uMsg) {
-  case WM_PAINT: {
-    printf("WM_PAINT\n");
-    break;
-  }
-  default:
-    printf("Other message\n");
-    break;
-  }
-
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

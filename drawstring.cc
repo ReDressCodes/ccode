@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   hwnd = CreateWindowA("AddString", "AddString test",
                        WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT,
-                       CW_USEDEFAULT, 800, 600, 0, 0, GetModuleHandleA(0), 0);
+                       CW_USEDEFAULT, 1920, 1080, 0, 0, GetModuleHandleA(0), 0);
 
   gdiplusStartupInput.GdiplusVersion = 1;
   gdiplusStartupInput.DebugEventCallback = NULL;
@@ -34,14 +34,31 @@ int main(int argc, char *argv[]) {
   HDC hdc = GetDC(hwnd);
 
   Graphics graphics(hdc);
-  FontFamily fontFamily(L"Times New Roman");
-  GraphicsPath pathstring, pathrect;
-  StringFormat format = {};
-  Status status = pathstring.AddString(
-      L"Hello, World",
-      -1, &fontFamily, 0, 160, Rect(100, 100, 100, 100), NULL);
-  Pen pen(Color(255, 255, 255, 0));
-  graphics.DrawPath(&pen, &pathstring);
+  // Create a string.
+  WCHAR string[] = L"Kontakt";
+
+  // Initialize arguments.
+  Font myFont(L"Arial", 160);
+  RectF layoutRect(3168.0f, 3079.0f, 0.0f, 0.0f);
+  StringFormat format;
+  format.SetAlignment(0);
+  format.SetLineAlignment(1);
+  format.SetHotkeyPrefix(0);
+  format.SetFormatFlags(3000);
+  SolidBrush blackBrush(Color(255, 255, 0, 0));
+
+  // Draw string.
+  graphics.DrawString(
+  string,
+  -1,
+  &myFont,
+  layoutRect,
+  &format,
+  &blackBrush);
+
+  // Draw layoutRect.
+  Pen mypen(Color::Black, 3);
+  graphics.DrawRectangle(&mypen, layoutRect);
 
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {

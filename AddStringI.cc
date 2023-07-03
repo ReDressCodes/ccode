@@ -1,11 +1,15 @@
-#include <cstdio>
+#include <stdio.h>
 #include <windows.h>
 #include <gdiplus.h>
-#include <tlhelp32.h>
 
 using namespace Gdiplus;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+/*
+typedef GdipAddPathStringI AddPathStringI;
+*/
+
+typedef GpStatus (WINGDIPAPI *GdipAddPathStringII)(GraphicsPath *path, GDIPCONST WCHAR *string, INT length, GDIPCONST FontFamily *family,
+                                      INT style, REAL emSize, GDIPCONST RectF *layoutRect, GDIPCONST StringFormat *format);
 
 int main(int argc, char *argv[]) {
   HWND hwnd;
@@ -15,9 +19,9 @@ int main(int argc, char *argv[]) {
   WNDCLASSA properties;
   memset(&properties, 0, sizeof(properties));
   properties.lpszClassName = "AddString";
-  properties.lpfnWndProc = WindowProc;
+  properties.lpfnWndProc = DefWindowProc;
   properties.hInstance = GetModuleHandleA(0);
-  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
+  properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(255, 255, 255));
   RegisterClassA(&properties);
 
   hwnd = CreateWindowA("AddString", "AddString test",
@@ -34,14 +38,30 @@ int main(int argc, char *argv[]) {
   HDC hdc = GetDC(hwnd);
 
   Graphics graphics(hdc);
+  GraphicsPath path;
+
   FontFamily fontFamily(L"Times New Roman");
-  GraphicsPath pathstring, pathrect;
-  StringFormat format = {};
-  Status status = pathstring.AddString(
-      L"Hello, World",
-      -1, &fontFamily, 0, 160, Rect(100, 100, 100, 100), NULL);
-  Pen pen(Color(255, 255, 255, 0));
-  graphics.DrawPath(&pen, &pathstring);
+
+  HINSTANCE hinstLib = LoadLibraryA(TEXT("gdiplus.dll"));
+  GdipAddPathStringII pAddStringI = GetProcAddress(hinstLib, "GdipAddPathStringI");
+  StringFormat stringFormat;
+
+  pAddStringI(
+     &path,
+     L"Hello World",
+     -1,                 // NULL-terminated string
+     &fontFamily,
+     FontStyleRegular,
+     48,
+     PointF(50.0f, 50.0f),
+     &stringFormat);
+
+
+  Pen pen(Color(255, 255, 0, 0), 10.0f);
+  Pen pen1(Color(255, 0, 0, 0));
+  path.Widen(&pen);
+  path.Outline();
+  graphics.DrawPath(&pen1, &path);
 
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
@@ -49,22 +69,5 @@ int main(int argc, char *argv[]) {
     DispatchMessage(&Msg);
   }
 
-  Sleep(100000);
-
   return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                            LPARAM lParam) {
-  switch (uMsg) {
-  case WM_PAINT: {
-    printf("WM_PAINT\n");
-    break;
-  }
-  default:
-    printf("Other message\n");
-    break;
-  }
-
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

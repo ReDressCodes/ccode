@@ -4,12 +4,11 @@
 
 using namespace Gdiplus;
 
-void check_fallback(FontFamily *family)
-{
-    if (family)
-        printf("fallback font \n");
-    else
-        printf("no fallback font \n");
+void check_fallback(FontFamily *family) {
+  if (family)
+    printf("fallback font \n");
+  else
+    printf("no fallback font \n");
 }
 
 int main(int argc, char *argv[]) {
@@ -41,20 +40,22 @@ int main(int argc, char *argv[]) {
   Graphics graphics(hdc);
   GraphicsPath path;
 
-  path.AddLine(PointF(-20.f, 175.f), PointF(300.f, 175.f));
-  path.AddLine(PointF(80.f, 175.f), PointF(40.f, 175.f));
-  path.AddLine(PointF(30.f, 75.f), PointF(250.f, 175.f));
-  path.AddLine(PointF(50.f, 50.f), PointF(1000.f, 1000.f));
+  /*
+  path.AddBezier(154.950806f, 33.391144f, 221.586075f, 15.536285f, 291.747314f,
+                 15.536285f, 358.382568f, 33.391144f);
+
+  path.AddBezier(256.666809f, 412.999512f, 256.666718f, 412.999481f, 256.666656f,
+                 412.999481f, 256.666565f, 412.999512f);
 
   Pen pen(Color(255, 0, 0, 0), 8);
-  pen.SetStartCap(LineCapArrowAnchor);
-  pen.SetEndCap(LineCapRoundAnchor);
-  graphics.DrawPath(&pen, &path);
 
-  /*
+  path.Flatten(NULL, 10.0f);
+  graphics.DrawPath(&pen, &path);
+  */
+ 
   FontFamily fontFamily(L"Times New Roman");
 
- //  check_fallback(&fontFamily);
+  StringFormat stringFormat;
 
   path.AddString(
      L"Hello World",
@@ -63,12 +64,15 @@ int main(int argc, char *argv[]) {
      FontStyleRegular,
      48,
      PointF(50.0f, 50.0f),
-     NULL);
+     &stringFormat);
 
-  Pen pen(Color(255, 255, 0, 0));
-  graphics.DrawPath(&pen, &path);
 
-  */
+  Pen pen(Color(255, 255, 0, 0), 10.0f);
+  Pen pen1(Color(255, 0, 0, 0));
+  path.Widen(&pen);
+  path.Outline();
+  graphics.DrawPath(&pen1, &path);
+
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
     TranslateMessage(&Msg);
