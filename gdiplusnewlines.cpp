@@ -43,7 +43,7 @@ int wmain(int argc, wchar_t **argv)
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR gdiplusToken;
 
-	const std::wstring teststring = L"Hello\nWorld";
+	const std::wstring teststring = L"Hello\r\nWorld";
 	const std::wstring filename = argc >= 2 ? std::wstring(argv[1]) : L"gdiplus-test-string.png";
 
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
@@ -99,7 +99,6 @@ int wmain(int argc, wchar_t **argv)
 		std::cout << " (" << std::dec << dx[i] << ") ";
 	}
 
-        std::cout << "DrawString return status "<<hr << std::endl;
 	std::cout << std::endl;
 
 	bmp->Save(filename.c_str(), &encoder, NULL);

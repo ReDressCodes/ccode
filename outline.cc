@@ -36,11 +36,26 @@ int main(int argc, char *argv[]) {
   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
   HDC hdc = GetDC(hwnd);
+  //HDC hdc = CreateCompatibleDC(NULL);
+  HDC memDC = CreateCompatibleDC ( hdc );
+  HBITMAP memBM = CreateCompatibleBitmap ( hdc, 400, 300 );
+  SelectObject ( memDC, memBM );
+
+
+  /*
+    RectF rect;
+    BITMAP structBitmapHeader = {0};
+    HGDIOBJ hBitmap = GetCurrentObject(hdc, OBJ_BITMAP);
+
+    GetObjectW(hBitmap, sizeof(BITMAP), &structBitmapHeader);
+
+    printf(" %ld %ld \n", structBitmapHeader.bmWidth, structBitmapHeader.bmHeight);
+    */
 
    Graphics graphics(hdc);
-
    Pen bluePen(Color(255, 0, 0, 255));
    Pen greenPen(Color(255, 0, 255,  0), 10.0f);
+   GraphicsPath path;
 
    PointF points[] = {
       PointF(20.0f, 20.0f),
@@ -48,16 +63,49 @@ int main(int argc, char *argv[]) {
       PointF(140.0f, 60.0f),
       PointF(60.0f, 100.0f)};
 
-   GraphicsPath path;
    path.AddClosedCurve(points, 4);
 
- ///  path.Widen(&greenPen);
-   graphics.DrawPath(&bluePen, &path);
+   //path.Widen(&greenPen);
+   //graphics.DrawPath(&bluePen, &path);
 
-   path.Outline();
+  graphics.TranslateTransform(180.0f, 20.0f);
 
-//   graphics.TranslateTransform(180.0f, 20.0f);
-   graphics.DrawPath(&bluePen, &path);
+   PointF points2[] = {
+      PointF(30.0f, 30.0f),
+      PointF(170.0f, 110.0f),
+      PointF(150.0f, 70.0f),
+      PointF(70.0f, 110.0f)};
+
+  path.AddClosedCurve(points2, 4);
+  path.Flatten();
+  /*
+   path.AddBezier(154.950806f, 33.391144f,
+                  221.586075f, 15.536285f,
+                  291.747314f, 15.536285f,
+                  358.382568f, 33.391144f);
+   path.AddBezier(256.666809f, 412.999512f,
+                  256.666718f, 412.999481f,
+                  256.666656f, 412.999481f,
+                  256.666565f, 412.999512f);
+
+  graphics.DrawPath(&bluePen, &path);
+
+  GraphicsPath path2;
+   path2.AddBezier(154.950806f, 33.391144f,
+                  221.586075f, 15.536285f,
+                  291.747314f, 15.536285f,
+                  358.382568f, 33.391144f);
+   path2.AddBezier(256.666809f, 412.999512f,
+                  256.666718f, 412.999481f,
+                  256.666656f, 412.999481f,
+                  256.666565f, 412.999512f);
+
+  graphics.TranslateTransform(150.0f, 150.0f);
+  path2.Flatten(NULL, 0.25);
+
+  */
+  graphics.DrawPath(&bluePen, &path);
+
   MSG Msg;
   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
     TranslateMessage(&Msg);
