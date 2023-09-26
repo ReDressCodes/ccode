@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <stdint.h>
+
+#define NO_GENERATION ~((uint64_t)0)
 
 int main(int argc, char *argv[])
 {
-	char s[1000] = "x""      ""y";
+	uint64_t gen = NO_GENERATION;
 
-	printf("%s \n", s);
+	printf("%lu \n", gen);
 
 	return 0;
 }
