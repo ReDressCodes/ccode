@@ -15,12 +15,12 @@ int main(int argc, char *argv[])
     WNDCLASSA properties;
     memset(&properties, 0, sizeof(properties));
     properties.lpszClassName = "AddString";
-    //properties.style = CS_HREDRAW | CS_VREDRAW;
+    properties.style = CS_HREDRAW | CS_VREDRAW;
     properties.lpfnWndProc = DefWindowProcA;
     properties.hInstance = GetModuleHandleA(0);
-    //properties.hIcon = LoadIconA(0, (LPCSTR)IDI_APPLICATION);
-    //properties.hCursor = LoadCursorA(0, (LPCSTR)IDC_ARROW);
-    properties.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    properties.hIcon = LoadIconA(0, (LPCSTR)IDI_APPLICATION);
+    properties.hCursor = LoadCursorA(0, (LPCSTR)IDC_ARROW);
+    properties.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
     RegisterClassA( &properties );
 
     hwnd = CreateWindowA( "AddString", "AddString test", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -102,27 +102,21 @@ int main(int argc, char *argv[])
                   4, 4, 4, 4, 4, 2, 2, 3, 6, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 
                };
 
-    printf(" %d \n", sizeof(pti) / sizeof(pti[0]));
-    printf(" %d \n", sizeof(tp) / sizeof(tp[0]));
-
-
     HFONT hSysFont, HFont;
     LOGFONTW logFont, logSysFont;
 
-    HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+    HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 255l, 255));
     hSysFont = (HFONT)GetStockObject(SYSTEM_FONT);
     GetObjectW(hSysFont, sizeof(LOGFONTW), &logSysFont);
     SystemParametersInfoW(SPI_GETICONTITLELOGFONT, 0, &logFont, 0);
     lstrcpyW(logFont.lfFaceName, L"Times New Roman");
     wprintf(L" %ls \n", logFont.lfFaceName);
-    HFont = CreateFontIndirectW(&logFont);
-    /*
-    HFont = CreateFont(36,20,-300,0,FW_DONTCARE,FALSE,TRUE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
-                CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, VARIABLE_PITCH,TEXT("FreeMono"));
+    //HFont = CreateFontIndirectW(&logFont);
+    //HFont = CreateFont(36,20,-300,0,FW_DONTCARE,FALSE,TRUE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
+    //           CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, VARIABLE_PITCH,TEXT("FreeMono"));
 
-    */
     HDC hdc = GetDC(hwnd);
-    SelectObject(hdc, HFont);
+    SelectObject(hdc, hSysFont);
     SelectObject(hdc, pen);
     /*
     FontFamily fontFamily(L"FreeMono");
@@ -134,19 +128,24 @@ int main(int argc, char *argv[])
     */
 
     //Ex
-    //BeginPath(hdc);
+    BeginPath(hdc);
     //const char *to_draw = "Some text\n";
     //RECT rect = {0, 0, 100, 200};
     //DrawText(hdc, to_draw, -1, &rect, DT_CENTER); 
 
-    Graphics graphics(hdc);
-    Pen pen2(Color(255, 0, 255, 0));
-    graphics.DrawLine(&pen2, 0, 0, 200, 100);
-    //PolyDraw(hdc, pti, tp, 610);
+    //Graphics graphics(hdc);
+    //Pen pen2(Color(255, 0, 255, 0));
+    //graphics.DrawLine(&pen2, 0, 0, 200, 100);
+    PolyDraw(hdc, pti, tp, 610);
 
-    //EndPath(hdc);
+    EndPath(hdc);
 
-    Sleep(10000);
+    MSG Msg;
+
+    while(GetMessage(&Msg, NULL, 0, 0) > 0) {
+          TranslateMessage(&Msg);
+          DispatchMessage(&Msg);
+    }
 
     return 0;
 }
