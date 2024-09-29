@@ -1,4 +1,8 @@
 <?php
+/*
+  This xml needs to be parsed but still debating whether to use an xml library or to do it manually
+  Maybe move this to a seperate file too?
+*/
 
 $playlist_xml = "<name> Title </name>
  <tracks>
@@ -22,8 +26,37 @@ $playlist_xml = "<name> Title </name>
      <artist> Steflon Don </artist>
      <album> <unknown> </album>
     </track>
+    <track>
+     <name> Hello </name>
+     <artist> Adele </artist>
+     <album> -Single - </album>
+    </track>
+    <track>
+     <name> Sitoi Kitu Kidogo </name>
+     <artist> Jimwat </artist>
+     <album> - Single - </album>
+    </track>
+    <track>
+     <name> Coat of many colours </name>
+     <artist> Dolly Parton </artist>
+     <album> The Reloaded doll </album>
+    </track>
+    <track>
+     <name> Love is strange </name>
+     <aritst> Dolly Parton </artist>
+     <album> Dolly and Kenny </album>
+    </track>
+    <track>
+     <name> Spanish guitar </name>
+     <artist> Birdman's ex </artist>
+     <album> Hits from 2000s </album>
+    </track>
+    <track>
+     <name> Leather so soft </name>
+     <artist> Birdman and Sons Co. </artist>
+     <album> Made in tiger </album>
+    </track>
   </tracks>";
-   
      
 /* PHP variables seems to only get defined after they're initialized? */
 $playlist_generated = [];
