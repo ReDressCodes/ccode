@@ -4,7 +4,60 @@
   Maybe move this to a seperate file too?
 */
 
-$playlist_xml = "<name> Title </name>
+$playlist_json = '[ "Sunday Blues",
+                   [
+		     "name" : "Let\'s tie our love",
+		     "artist" : "Dolly Parton",
+		     "album" : "Alabama Valley"
+		   ],
+		   [
+		     "name" : "The Gambler",
+		     "artist" : "Kenny Rogers",
+		     "album" : "The Gambit"
+		   ],
+		   [
+		     "name" : "Forever",
+		     "artist" : "The birthday massacre",
+		     "album" : "The rabbit"
+		   ],
+		   [
+		     "name" : "Dat a dat",
+		     "artist" : "Steflon Don",
+		     "album" : "<unknown>"
+		   ],
+		   [
+		     "name" : "Hello",
+		     "artist" : "Adele",
+		     "album" : "- Single - "
+		   ],
+		   [
+		     "name" : "Sitoi Kitu Kidogo",
+		     "artist" : "Jimwat",
+		     "album" : " - Single - "
+		   ],
+		   [
+		     "name" : "Coat of many colours",
+		     "artist" : "Dolly Parton",
+		     "album" : "The Reloaded doll"
+		   ],
+		   [
+		     "name" : "Love is strange",
+		     "artist" : "Dolly Parton ",
+		     "album" : "Dolly and Kenny"
+		   ],
+		   [
+		     "name" : "Spanish guitar",
+		     "artist" : "Birdman\'s ex",
+		     "album" : "Hit from the 2000s "
+		   ],
+		   [
+		     "name" : "Leather so soft",
+		     "artist" : "Birdman and Sons Co.",
+		     "album" : "Made in tiger"
+		   ]
+		]';
+
+$playlist_xml = "<name> Sunday Blues </name>
  <tracks>
    <track>
      <name> Let's tie our love </name>
