@@ -1,0 +1,9 @@
+class Gene {
+
+/*
+
+Empty
+
+*/
+
+};
