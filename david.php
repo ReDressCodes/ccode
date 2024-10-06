@@ -197,4 +197,32 @@ generate($playlist_generated);
 
 phpinfo();
 
-?>
+?>class Router {
+
+/*
+
+Empty
+
+*/
+
+};<? php
+
+class break {
+
+/*
+
+Empty
+
+*/
+
+};
+
+?>class Gene {
+
+/*
+
+Empty
+
+*/
+
+};
