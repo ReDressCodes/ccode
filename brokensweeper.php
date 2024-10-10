@@ -124,8 +124,6 @@ static $vowels = ['a', 'e', 'i', 'o', 'u'];
 /* 20 items */
 $items = 20;
 
-srand(time());
-
 while ($items != 0) {
 
 /* Generate the "name" of artist first and foremost */
@@ -134,14 +132,14 @@ $lettercountsecond = 0;
 $firstname = "";
 $lastname = "";
 
-while($lettercountfirst <= 4 ) { $lettercountfirst = rand() % 15;}
-while($lettercountsecond <= 4) { $lettercountsecond = rand() % 15;} 
+while($lettercountfirst <= 4 ) { $lettercountfirst = random_int(0, 15);}
+while($lettercountsecond <= 4) { $lettercountsecond = random_int(0, 15);} 
 
 
 /* There is five vowels and 20 consonants so one way or the other we have to force the vowels. */
 while($lettercountfirst > 0) {
 
-$firstname[$lettercountfirst] = $bucket[rand() % 25];
+$firstname[$lettercountfirst] = $bucket[random_int(0, 15)];
 
 /* fallback to force vowels in case one is needed */
 for($start = 0; $start <= 4; $start++) {
@@ -156,7 +154,7 @@ $lettercountfirst--;
 }
 while($lettercountsecond > 0) {
 
-$lastname[$lettercountsecond] = $bucket[rand() % 25];
+$lastname[$lettercountsecond] = $bucket[random_int(0, 15)];
 
 for ($start = 0; $start <= 4; $start++) {
 
@@ -171,13 +169,13 @@ $lettercountsecond--;
 }
 
 /* it doesn't seem like PHP has methods for handling characters unless you consider those meant for dealing with UNICODE */
-$firstname[0] = $upperbucket[rand() % 25];
-$lastname[0] = $upperbucket[rand() % 25];
+$firstname[0] = $upperbucket[random_int(0, 25)];
+$lastname[0] = $upperbucket[random_int(0, 25)];
 
 echo $firstname . " " . $lastname . "<br>"; 
 
 /* Generate the name of the track */
-$words = rand() % 5;  if ($words == 0) $words = 1;
+$words = random_int(0, 5);  if ($words == 0) $words = 1;
 
 while($words != 0) { break;}
 
@@ -202,19 +200,19 @@ $list = new ListManager();
 
 $list->generate();
 
+foreach($_GET as $item => $value) { echo $item; echo "  "; echo $value; echo "<br>";}
+
+echo count($_GET);
+
+echo "</br>";
+
+echo count($_SERVER);
+
+echo "</br>";
+
 phpinfo();
 
-?>class Router {
-
-/*
-
-Empty
-
-*/
-
-};<? php
-
-class break {
+class Router {
 
 /*
 
@@ -224,7 +222,7 @@ Empty
 
 };
 
-?>class Gene {
+class Breaker {
 
 /*
 
@@ -233,3 +231,16 @@ Empty
 */
 
 };
+
+
+class Gene {
+
+/*
+
+Empty
+
+*/
+
+};
+
+?>
