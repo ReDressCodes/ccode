@@ -113,7 +113,7 @@ $playlist_xml = "<name> Sunday Blues </name>
      
 class ListManager {
 
-public function __constructor() {}
+public function __construct() {}
 
 public function generate() {
 	static $bucket = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
