@@ -190,6 +190,7 @@ $count = 0; $count++;
 for($start = 0; $start <= 25; $start++) { echo $start; echo "<br>"; }
 */
 
+/*
 $list = new ListManager();
 
 $list->generate();
@@ -205,6 +206,8 @@ echo count($_SERVER);
 echo "</br>";
 
 phpinfo();
+ 
+*/
 
 class Router {
 
@@ -218,12 +221,36 @@ Empty
 
 class Breaker {
 
-function __construct() {}
+function __construct($gridsize) {
+
+   $itemcount = 0;
+   srand(time());
+
+
+   if ($gridsize > 10 && $gridsize < 50) {
+	for($i = 0; $i < $gridsize; $i++) {
+	    for ($j = 0; $j < $gridsize; $j++) {
+		    /* strange enough but this never seems to hit 1, just zeros */
+		    $grid[ $i . $j ] = rand() % 1;
+		    $itemcount++;
+	    }
+	}
+   }
+
+   var_dump($grid);
+   print($itemcount);
+}
 
 function __destruct() {}
 
+private $grid;
+
 };
 
+
+$gridsize = 20;
+
+$breaker = new Breaker($gridsize);
 
 class Gene {
 
