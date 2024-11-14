@@ -18,7 +18,7 @@ class dataframe {
 
 	function generate($range_a, $range_b) {
 		srand(time());
-		$dataframe = fopen("data.txt", "rw+");
+		$dataframe = fopen("data.txt", "crw+");
 		
 		for ($i = 0; $i <= 10; $i++) {
 			for ($j = 0; $j <= 20; $j++) {
@@ -28,7 +28,7 @@ class dataframe {
 			fwrite($dataframe, "\n");
 		}
 		
-		/* fclose($dataframe); */
+		fclose($dataframe);
 	}
 
 	function display() {
