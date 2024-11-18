@@ -1,6 +1,10 @@
 <?php 
 
-  phpinfo();
+  $hello = "World";
+
+  $$hello = "Friend";
+
+  echo $World;
 
   $correct = 'aaxxbbccddwwddffgg';
 
