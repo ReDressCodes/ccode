@@ -1,0 +1,114 @@
+From 775d58c6e169c0d296f1587bdfc1602d23429c32 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Thu, 30 Jan 2025 13:45:19 +0300
+Subject: [PATCH] drivers/net: use immutable pointers as it's not necessary to
+ use mutable pointers
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ drivers/net/xen-netback/netback.c | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index 5836995d6..cefc96f40 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -549,10 +549,9 @@ static inline void xenvif_grant_handle_reset(struct xenvif_queue *queue,
+ 
+ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 			       struct sk_buff *skb,
+-			       struct gnttab_map_grant_ref **gopp_map,
+-			       struct gnttab_copy **gopp_copy)
++			       struct gnttab_map_grant_ref *gopp_map,
++			       struct gnttab_copy *gopp_copy)
+ {
+-	struct gnttab_map_grant_ref *gop_map = *gopp_map;
+ 	u16 pending_idx;
+ 	/* This always points to the shinfo of the skb being checked, which
+ 	 * could be either the first or the one on the frag_list
+@@ -574,13 +573,13 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 		/* Check status of header. */
+ 		pending_idx = copy_pending_idx(skb, i);
+ 
+-		newerr = (*gopp_copy)->status;
++		newerr = gopp_copy->status;
+ 
+ 		/* Split copies need to be handled together. */
+ 		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
+-			(*gopp_copy)++;
++			gopp_copy++;
+ 			if (!newerr)
+-				newerr = (*gopp_copy)->status;
++				newerr = gopp_copy->status;
+ 		}
+ 		if (likely(!newerr)) {
+ 			/* The first frag might still have this slot mapped */
+@@ -592,30 +591,30 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 			if (net_ratelimit())
+ 				netdev_dbg(queue->vif->dev,
+ 					   "Grant copy of header failed! status: %d pending_idx: %u ref: %u\n",
+-					   (*gopp_copy)->status,
++					   gopp_copy->status,
+ 					   pending_idx,
+-					   (*gopp_copy)->source.u.ref);
++					   gopp_copy->source.u.ref);
+ 			/* The first frag might still have this slot mapped */
+ 			if (i < copy_count(skb) - 1 || !sharedslot)
+ 				xenvif_idx_release(queue, pending_idx,
+ 						   XEN_NETIF_RSP_ERROR);
+ 		}
+-		(*gopp_copy)++;
++		gopp_copy++;
+ 	}
+ 
+ check_frags:
+-	for (i = 0; i < nr_frags; i++, gop_map++) {
++	for (i = 0; i < nr_frags; i++, gopp_map++) {
+ 		int j, newerr;
+ 
+ 		pending_idx = frag_get_pending_idx(&shinfo->frags[i]);
+ 
+ 		/* Check error status: if okay then remember grant handle. */
+-		newerr = gop_map->status;
++		newerr = gopp_map->status;
+ 
+ 		if (likely(!newerr)) {
+ 			xenvif_grant_handle_set(queue,
+ 						pending_idx,
+-						gop_map->handle);
++						gopp_map->handle);
+ 			/* Had a previous error? Invalidate this fragment. */
+ 			if (unlikely(err)) {
+ 				xenvif_idx_unmap(queue, pending_idx);
+@@ -638,9 +637,9 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 			netdev_dbg(queue->vif->dev,
+ 				   "Grant map of %d. frag failed! status: %d pending_idx: %u ref: %u\n",
+ 				   i,
+-				   gop_map->status,
++				   gopp_map->status,
+ 				   pending_idx,
+-				   gop_map->ref);
++				   gopp_map->ref);
+ 
+ 		xenvif_idx_release(queue, pending_idx, XEN_NETIF_RSP_ERROR);
+ 
+@@ -680,7 +679,6 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 		goto check_frags;
+ 	}
+ 
+-	*gopp_map = gop_map;
+ 	return err;
+ }
+ 
+@@ -1183,7 +1181,7 @@ static int xenvif_tx_submit(struct xenvif_queue *queue)
+ 		txp = &queue->pending_tx_info[pending_idx].req;
+ 
+ 		/* Check the remap error code. */
+-		if (unlikely(xenvif_tx_check_gop(queue, skb, &gop_map, &gop_copy))) {
++		if (unlikely(xenvif_tx_check_gop(queue, skb, gop_map, gop_copy))) {
+ 			/* If there was an error, xenvif_tx_check_gop is
+ 			 * expected to release all the frags which were mapped,
+ 			 * so kfree_skb shouldn't do it again
+-- 
+2.43.0
+
