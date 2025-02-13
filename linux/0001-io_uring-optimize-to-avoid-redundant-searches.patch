@@ -1,0 +1,44 @@
+From 6d1ce99d35599b64563838228440bd47bfdd6b52 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Thu, 13 Feb 2025 12:09:26 +0300
+Subject: [PATCH] io_uring: optimize to avoid redundant searches
+
+If we only aim to remove/cancel one of the request, break
+out of the loop after cancelling it
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/poll.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index bced9edd5..7ca5db4fa 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -719,12 +719,12 @@ __cold bool io_poll_remove_all(struct io_ring_ctx *ctx, struct io_uring_task *tc
+ 	unsigned nr_buckets = 1U << ctx->cancel_table.hash_bits;
+ 	struct hlist_node *tmp;
+ 	struct io_kiocb *req;
+-	bool found = false;
++	bool found = false, done = false;
+ 	int i;
+ 
+ 	lockdep_assert_held(&ctx->uring_lock);
+ 
+-	for (i = 0; i < nr_buckets; i++) {
++	for (i = 0; i < nr_buckets && !done; i++) {
+ 		struct io_hash_bucket *hb = &ctx->cancel_table.hbs[i];
+ 
+ 		hlist_for_each_entry_safe(req, tmp, &hb->list, hash_node) {
+@@ -732,6 +732,8 @@ __cold bool io_poll_remove_all(struct io_ring_ctx *ctx, struct io_uring_task *tc
+ 				hlist_del_init(&req->hash_node);
+ 				io_poll_cancel_req(req);
+ 				found = true;
++
++				if (!cancel_all) { done = true; break; }
+ 			}
+ 		}
+ 	}
+-- 
+2.43.0
+
