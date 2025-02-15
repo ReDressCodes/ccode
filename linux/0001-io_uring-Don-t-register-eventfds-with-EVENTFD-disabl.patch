@@ -1,0 +1,27 @@
+From 7efe3e38c0c50a6581b48332034f947570fa0a54 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Sat, 15 Feb 2025 21:11:52 +0300
+Subject: [PATCH] io_uring: Don't register eventfds with EVENTFD disabled
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/eventfd.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/io_uring/eventfd.c b/io_uring/eventfd.c
+index 100d5da94..7fa3b7af5 100644
+--- a/io_uring/eventfd.c
++++ b/io_uring/eventfd.c
+@@ -157,6 +157,9 @@ int io_eventfd_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	__s32 __user *fds = arg;
+ 	int fd;
+ 
++	if (READ_ONCE(ctx->rings->cq_flags) & IORING_CQ_EVENTFD_DISABLED)
++		return EINVAL;
++
+ 	ev_fd = rcu_dereference_protected(ctx->io_ev_fd,
+ 					lockdep_is_held(&ctx->uring_lock));
+ 	if (ev_fd)
+-- 
+2.43.0
+
