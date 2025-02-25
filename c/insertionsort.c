@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+//TODO - qsort
+//
 static int array[] = {7, 5, 0, 8, 2, 5, 7, 9, 1, 3, 9, 5, 4, 2, 0, 6, 8, 3, 5, 7};
 
 static void array_print(int *p, int elements)
