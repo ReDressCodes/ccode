@@ -75,16 +75,21 @@ sine_lookup_table <- c(0.0349040200,0.0523427360,0.0697655038,0.0871670149,0.104
 ,-0.1383842207,-0.1210764076,-0.1037317038,-0.0863553942,-0.0689527730
 ,-0.0515291427,-0.0340898121,-0.0166400947,0.0008146927)
 
-sin <- function(x) {
+sine <- function(x) {
 
+	if (x > 360) x = x %% 360;
+
+	sine_lookup_table[x]
 }
 
 #cosine values 0 - 360 (in radians)
 
-cos <- function(x) {
+cosine <- function(x) {
 
 }
 
-tan <- function(x) {
+tangent <- function(x) {
 
 }
+
+print(sine(45))
