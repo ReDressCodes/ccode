@@ -1,0 +1,43 @@
+From edd8999045013d1638a979c67368c6dedbdf2a73 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Thu, 6 Mar 2025 12:16:41 +0300
+Subject: [PATCH] btrfs: Avoid unnecessary variable
+
+The variable need_order isn't needed as we can directly inquire
+whether the order is needed
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ fs/btrfs/async-thread.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
+index 361a866c1..03079c055 100644
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -296,7 +296,6 @@ static void btrfs_work_helper(struct work_struct *normal_work)
+ 	struct btrfs_work *work = container_of(normal_work, struct btrfs_work,
+ 					       normal_work);
+ 	struct btrfs_workqueue *wq = work->wq;
+-	int need_order = 0;
+ 
+ 	/*
+ 	 * We should not touch things inside work in the following cases:
+@@ -306,13 +305,11 @@ static void btrfs_work_helper(struct work_struct *normal_work)
+ 	 *    The work may be freed in other threads almost instantly.
+ 	 * So we save the needed things here.
+ 	 */
+-	if (work->ordered_func)
+-		need_order = 1;
+ 
+ 	trace_btrfs_work_sched(work);
+ 	thresh_exec_hook(wq);
+ 	work->func(work);
+-	if (need_order) {
++	if (work->ordered_func) {
+ 		/*
+ 		 * Ensures all memory accesses done in the work function are
+ 		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
+-- 
+2.43.0
+
