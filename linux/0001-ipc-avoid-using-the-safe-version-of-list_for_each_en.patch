@@ -1,0 +1,43 @@
+From d75ac74e626539dfd477dd708c2bf1d3bfbf8938 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Fri, 14 Mar 2025 15:08:31 +0300
+Subject: [PATCH] ipc: avoid using the 'safe' version of list_for_each_entry
+
+Since we're not removing from the list here, there's no point
+in safeguarding this loop from removal.
+
+On further note, these list macros might actually not be type
+safe and could be used to juggle between different types of list
+which would probably lead to information disclosure(or some other
+bugs)
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ ipc/sem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ipc/sem.c b/ipc/sem.c
+index a39cdc7bf..31c1d959f 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -282,7 +282,7 @@ void __init sem_init(void)
+  */
+ static void unmerge_queues(struct sem_array *sma)
+ {
+-	struct sem_queue *q, *tq;
++	struct sem_queue *q;
+ 
+ 	/* complex operations still around? */
+ 	if (sma->complex_count)
+@@ -292,7 +292,7 @@ static void unmerge_queues(struct sem_array *sma)
+ 	 * Move all pending operation back into the per-semaphore
+ 	 * queues.
+ 	 */
+-	list_for_each_entry_safe(q, tq, &sma->pending_alter, list) {
++	list_for_each_entry(q, &sma->pending_alter, list) {
+ 		struct sem *curr;
+ 		curr = &sma->sems[q->sops[0].sem_num];
+ 
+-- 
+2.43.0
+
