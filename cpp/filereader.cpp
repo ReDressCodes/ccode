@@ -12,7 +12,11 @@ class Reader {
 		this->read_size = read_size;
 
 		this->file = new std::fstream("irclog.txt", std::fstream::in | std::fstream::out);
-		this->file_size = file->tellg();
+		this->already_read = 0;
+
+		this->file->seekg(0, this->file->end);
+		this->file_size = this->file->tellg();
+		this->file->seekg(0, this->file->beg);
 
 		for (int i = 0; i < 8; i++){
 			threads.push_back(new std::thread(Reader::Read, std::ref(this->read_size)));
@@ -33,23 +37,27 @@ class Reader {
 
 	static void Read(size_t read_size)
 	{
-		mutex.lock();
+		while (1) {
+			mutex.lock();
 
-		size_t to_read = file_size - already_read;
+			size_t to_read = file_size - already_read;
 
-		if (to_read > read_size) 
-		{ 
-			to_read = read_size; 
+			if (to_read > read_size)
+			{
+				to_read = read_size;
+			}
+
+			std::string data(to_read, '\0');
+			file->read(&data[0], to_read);
+
+			file_contents.push_back(data);
+
+			already_read += to_read;
+
+			if (to_read < read_size) { mutex.unlock(); break; }
+
+			mutex.unlock();
 		}
-
-		std::string data(to_read, '\0');
-		file->read(&data[0], to_read);
-
-		file_contents.push_back(data);
-
-		already_read += to_read;
-
-		mutex.unlock();
 	}
 
 	void Output()
