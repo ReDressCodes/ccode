@@ -1,0 +1,28 @@
+From 1b3d24b8040d243cddcc7bcc7ef5a18c11007bc2 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Tue, 12 Aug 2025 17:12:17 +0300
+Subject: [PATCH 1/2] io_uring: Don't init work when defering a link
+
+The link will get prepared later if at all it's going
+to passed over to io-wq
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/io_uring.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 4ef69dd58734..43a97121ac66 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -1725,7 +1725,6 @@ static __cold void io_drain_req(struct io_kiocb *req)
+ 		return;
+ 	}
+ 
+-	io_prep_async_link(req);
+ 	trace_io_uring_defer(req);
+ 	de->req = req;
+ 
+-- 
+2.50.1
+
