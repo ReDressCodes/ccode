@@ -1,0 +1,76 @@
+From 3087e3f0fa2de0d943b2605413a07466dcc295cd Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Mon, 8 Sep 2025 18:31:10 +0300
+Subject: [PATCH] io_uring: Return EIOCBQUEUED directly from
+ __io_arm_poll_handler
+
+zero is interpreted as EIOCBQUEUED later in the code we might as well
+return EIOCBQUEUED directly from __io_arm_poll_handler as this ensures
+more clarity
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/poll.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index c786e587563b..a1751bc72a3a 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -585,7 +585,7 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 
+ 		if (!io_poll_can_finish_inline(req, ipt)) {
+ 			io_poll_mark_cancelled(req);
+-			return 0;
++			return EIOCBQUEUED;
+ 		} else if (mask && (poll->events & EPOLLET)) {
+ 			ipt->result_mask = mask;
+ 			return 1;
+@@ -597,7 +597,7 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 	   ((poll->events & (EPOLLET|EPOLLONESHOT)) == (EPOLLET|EPOLLONESHOT))) {
+ 		if (!io_poll_can_finish_inline(req, ipt)) {
+ 			io_poll_add_hash(req, issue_flags);
+-			return 0;
++			return EIOCBQUEUED;
+ 		}
+ 		io_poll_remove_entries(req);
+ 		ipt->result_mask = mask;
+@@ -610,7 +610,7 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 	if (mask && (poll->events & EPOLLET) &&
+ 	    io_poll_can_finish_inline(req, ipt)) {
+ 		__io_poll_execute(req, mask);
+-		return 0;
++		return EIOCBQUEUED;
+ 	}
+ 	io_napi_add(req);
+ 
+@@ -622,7 +622,7 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 		if (atomic_cmpxchg(&req->poll_refs, 1, 0) != 1)
+ 			__io_poll_execute(req, 0);
+ 	}
+-	return 0;
++	return EIOCBQUEUED;
+ }
+ 
+ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
+@@ -689,7 +689,7 @@ int io_arm_apoll(struct io_kiocb *req, unsigned issue_flags, __poll_t mask)
+ 	io_kbuf_recycle(req, issue_flags);
+ 
+ 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask, issue_flags);
+-	if (ret)
++	if (ret && ret != EIOCBQUEUED)
+ 		return ret > 0 ? IO_APOLL_READY : IO_APOLL_ABORTED;
+ 	trace_io_uring_poll_arm(req, mask, apoll->poll.events);
+ 	return IO_APOLL_OK;
+@@ -903,7 +903,7 @@ int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
+ 		io_req_set_res(req, ipt.result_mask, 0);
+ 		return IOU_COMPLETE;
+ 	}
+-	return ret ?: IOU_ISSUE_SKIP_COMPLETE;
++	return ret;
+ }
+ 
+ int io_poll_remove(struct io_kiocb *req, unsigned int issue_flags)
+-- 
+2.50.1
+
