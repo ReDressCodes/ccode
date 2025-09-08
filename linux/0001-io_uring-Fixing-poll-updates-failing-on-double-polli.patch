@@ -1,0 +1,36 @@
+From 6a542eac98a420b7ea114aa8047225adb9ccf146 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Mon, 8 Sep 2025 18:14:57 +0300
+Subject: [PATCH] io_uring: Fixing poll updates failing on double polling
+ requests
+
+From the looks of it, double polling requests(IORING_OP_POLL_ADD)
+will always fail because async_data is never release and is thereafter
+checked for validity. Double polling requests with a valid async_data
+are always failed unless they're pointing into the wait_queue
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/poll.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index c786e587563b..fa82eb1b3c94 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -651,6 +651,12 @@ static struct async_poll *io_req_alloc_apoll(struct io_kiocb *req,
+ 	if (req->flags & REQ_F_POLLED) {
+ 		apoll = req->apoll;
+ 		kfree(apoll->double_poll);
++		/* In case we're updating a double poll, free and clear async->data */
++		if (req->opcode == IORING_OP_POLL_ADD) {
++			kfree(req->async_data);
++			req->async_data = NULL;
++			req->flags &= ~ REQ_F_ASYNC_DATA;
++		}
+ 	} else {
+ 		if (!(issue_flags & IO_URING_F_UNLOCKED))
+ 			apoll = io_cache_alloc(&ctx->apoll_cache, GFP_ATOMIC);
+-- 
+2.50.1
+
