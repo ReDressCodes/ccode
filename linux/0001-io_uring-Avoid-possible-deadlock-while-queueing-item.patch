@@ -1,0 +1,35 @@
+From 5131c2d31c57395e22e08d86f32f053139dffe95 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Mon, 8 Sep 2025 18:43:48 +0300
+Subject: [PATCH] io_uring: Avoid possible deadlock while queueing items into
+ the work_llist
+
+As is, it is possible to detect a race condition and avoid memory corruption
+by not updating the list but after which this code is likely to loop indefinitely
+
+This is while disregarding any locks that might have already been taken/the assumption
+that this code doesn't run under any locks
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 93633613a165..6acfffc473a7 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -1205,8 +1205,9 @@ static void io_req_local_work_add(struct io_kiocb *req, unsigned flags)
+ 
+ 	guard(rcu)();
+ 
+-	head = READ_ONCE(ctx->work_llist.first);
+ 	do {
++		head = READ_ONCE(ctx->work_llist.first);
++
+ 		nr_tw_prev = 0;
+ 		if (head) {
+ 			struct io_kiocb *first_req = container_of(head,
+-- 
+2.50.1
+
