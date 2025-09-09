@@ -1,0 +1,29 @@
+From d97933d7d4809c833d070d813491bcac67c106f9 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Tue, 9 Sep 2025 18:36:36 +0300
+Subject: [PATCH] io_uring: Disable splice from auto-acquiring a file
+
+.needs_file is a flag used with opcodes that require the req->file
+field to be populated. IORING_OP_SPLICE does not and hence it should
+be removed
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/opdef.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/io_uring/opdef.c b/io_uring/opdef.c
+index 9568785810d9..a501b0f6e0b0 100644
+--- a/io_uring/opdef.c
++++ b/io_uring/opdef.c
+@@ -323,7 +323,6 @@ const struct io_issue_def io_issue_defs[] = {
+ #endif
+ 	},
+ 	[IORING_OP_SPLICE] = {
+-		.needs_file		= 1,
+ 		.hash_reg_file		= 1,
+ 		.unbound_nonreg_file	= 1,
+ 		.audit_skip		= 1,
+-- 
+2.50.1
+
