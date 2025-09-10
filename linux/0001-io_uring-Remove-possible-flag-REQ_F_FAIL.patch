@@ -1,0 +1,31 @@
+From 5913ffeed0f176d22e921c6f6feab84e001c70a8 Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Wed, 10 Sep 2025 13:33:49 +0300
+Subject: [PATCH] io_uring: Remove possible flag REQ_F_FAIL.
+
+Requests with the REQ_F_FAIL cannot get to this point on the first run
+because io_submit_fail_init, which sets the REQ_F_FAIL flag returns directly
+to io_submit_sqe ceasing further processing of the failed request on the first
+run. However, link->head might have the REQ_F_FAIL flag set on subsequent runs
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 93633613a165..cd8152f7b3c3 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2271,7 +2271,7 @@ static inline int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			goto fallback;
+ 
+ 	} else if (unlikely(req->flags & (IO_REQ_LINK_FLAGS |
+-					  REQ_F_FORCE_ASYNC | REQ_F_FAIL))) {
++					  REQ_F_FORCE_ASYNC))) {
+ 		if (req->flags & IO_REQ_LINK_FLAGS) {
+ 			link->head = req;
+ 			link->last = req;
+-- 
+2.50.1
+
