@@ -1,0 +1,33 @@
+From 6618fae9e3d8b236df58131cab5f37b7775d991e Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Sat, 13 Sep 2025 13:33:08 +0300
+Subject: [PATCH] io_uring: Remove assert that triggers during normal operation
+
+If a head node or any node that has downstream links is passed onto
+io_tx_ubuf_complete, this assert will trigger as the downstream nodes
+will be completed without their refcount being descrement.
+
+At the same time, it is safe to complete a node even with it's refcount
+not being zero
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ io_uring/notif.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/io_uring/notif.c b/io_uring/notif.c
+index 9a6f6e92d742..9f864e6b995b 100644
+--- a/io_uring/notif.c
++++ b/io_uring/notif.c
+@@ -18,8 +18,6 @@ static void io_notif_tw_complete(struct io_kiocb *notif, io_tw_token_t tw)
+ 	do {
+ 		notif = cmd_to_io_kiocb(nd);
+ 
+-		lockdep_assert(refcount_read(&nd->uarg.refcnt) == 0);
+-
+ 		if (unlikely(nd->zc_report) && (nd->zc_copied || !nd->zc_used))
+ 			notif->cqe.res |= IORING_NOTIF_USAGE_ZC_COPIED;
+ 
+-- 
+2.50.1
+
