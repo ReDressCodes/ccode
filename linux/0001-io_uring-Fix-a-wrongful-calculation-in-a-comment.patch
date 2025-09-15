@@ -1,0 +1,29 @@
+From 62dc8ccf608d388b810f62c80a74956f88d318ba Mon Sep 17 00:00:00 2001
+From: David Kahurani <redress@duck.com>
+Date: Sat, 13 Sep 2025 13:27:58 +0300
+Subject: [PATCH] io_uring: Fix a wrongful calculation in a comment
+
+__u8 data[56] results in a reservation of sizeof(__u8) * 56
+rather than a total of 56 bytes as indicated
+
+Signed-off-by: David Kahurani <redress@duck.com>
+---
+ include/linux/io_uring_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/io_uring_types.h b/include/linux/io_uring_types.h
+index 80a178f3d896..20805d21a69d 100644
+--- a/include/linux/io_uring_types.h
++++ b/include/linux/io_uring_types.h
+@@ -621,7 +621,7 @@ struct io_cqe {
+  */
+ struct io_cmd_data {
+ 	struct file		*file;
+-	/* each command gets 56 bytes of data */
++	/* each command gets 56 * sizeof(__u8) bytes of data */
+ 	__u8			data[56];
+ };
+ 
+-- 
+2.50.1
+
