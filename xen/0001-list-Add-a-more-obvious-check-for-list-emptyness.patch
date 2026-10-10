@@ -1,0 +1,39 @@
+From c626dd80656b4099682efd4951ab97b8dad45e6e Mon Sep 17 00:00:00 2001
+From: David Kahurani <k.kahurani@gmail.com>
+Date: Sat, 10 Oct 2026 12:36:04 +0300
+Subject: [PATCH] list : Add a more obvious check for list emptyness
+
+Signed-off-by: David Kahurani <k.kahurani@gmail.com>
+---
+ tools/xenstored/list.h | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/tools/xenstored/list.h b/tools/xenstored/list.h
+index d722a91220..8e76eb09bb 100644
+--- a/tools/xenstored/list.h
++++ b/tools/xenstored/list.h
+@@ -156,6 +156,21 @@ static inline int list_empty(struct list_head *head)
+ 	return head->next == head;
+ }
+ 
++/*
++ * list_empty - test whether a list is empty
++ *
++ *  @head: ths list to test
++ *
++ *  static inline int list_empty(struct list_head *head)
++ *  {
++ *       return head->next == head->prev
++ *
++ *  }
++ *
++ *  if the tail points to the head, then the list is empty
++ *
++ *
++ */
+ static inline void __list_splice(struct list_head *list,
+ 				 struct list_head *head)
+ {
+-- 
+2.55.0
+
