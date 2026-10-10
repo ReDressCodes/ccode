@@ -93,3 +93,4 @@ tangent <- function(x) {
 }
 
 print(sine(45))
+plot(sine_lookup_table)

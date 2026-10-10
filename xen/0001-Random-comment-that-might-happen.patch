@@ -1,0 +1,27 @@
+From e1716503572f93e6d02892fe68daa2205136c985 Mon Sep 17 00:00:00 2001
+From: David Kahurani <k.kahurani@gmail.com>
+Date: Sat, 10 Oct 2026 13:23:27 +0300
+Subject: [PATCH] Random comment that might happen
+
+Signed-off-by: David Kahurani <k.kahurani@gmail.com>
+---
+ tools/xenstored/transaction.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tools/xenstored/transaction.c b/tools/xenstored/transaction.c
+index c6519164be..e4b793a3e7 100644
+--- a/tools/xenstored/transaction.c
++++ b/tools/xenstored/transaction.c
+@@ -340,6 +340,9 @@ void queue_watches(struct connection *conn, const char *name,
+ 		return;
+ 	}
+ 
++	/* If a watch fires twice during a transaction, not clear to me whether this is possible, then it turns into an issue because the event only gets queue'd once.
++	 */
++
+ 	if (!i->fire_watch) {
+ 		i->fire_watch = true;
+ 		i->watch_match = watch_match;
+-- 
+2.55.0
+
